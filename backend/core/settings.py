@@ -1,5 +1,7 @@
+from datetime import timedelta
 from pathlib import Path
 import environ
+
 import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -13,6 +15,24 @@ DEBUG = env('DEBUG') == "True"
 
 ALLOWED_HOSTS = []
 
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
+
+
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -20,10 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
-    'rest_framework.authtoken',
     'authentication.apps.AuthenticationConfig',
-    'corsheaders',
+    'notes.apps.NotesConfig',
+    'rest_framework',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -37,7 +57,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [ 'http://localhost:5173',]
+CORS_ALLOWS_CREDENTIALS = True
 
 ROOT_URLCONF = 'core.urls'
 

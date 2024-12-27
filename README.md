@@ -10,5 +10,7 @@ Bulls and Cows is a fun game played online with friends. Let's eat green grass, 
 
 
 ````
-    npm cache clear --force
+    npm create vite@latest fronted --  --template react 
+    
 ````
+https://getbootstrap.com/docs/5.2/getting-started/vite/
