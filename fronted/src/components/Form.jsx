@@ -1,17 +1,19 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import "../styles/Form.css";
 import LoadingIndicator from "./LoadingIndicator";
+import { UserContext } from '../context/UserContext';
 
-function Form({ route, method }) {
+function Form({ route, method, handleShowToast }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
+    const { setUser } = useContext(UserContext);
 
     const name = method === "login" ? "Login" : "Register";
 
@@ -34,9 +36,13 @@ function Form({ route, method }) {
             if (method === "login") {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
-                navigate("/requests")
+                const userResponse = await api.get("/api/auth/user/me/");
+                setUser(userResponse.data);
+                handleShowToast("Login successful!");
+                navigate("/requests");
             } else {
-                navigate("/login")
+                handleShowToast("Registration successful!");
+                navigate("/login");
             }
         } catch (error) {
             // Check for error messages from backend
@@ -46,7 +52,7 @@ function Form({ route, method }) {
                 setErrors({ detail: [error.message] });
             }
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
 

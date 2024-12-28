@@ -1,7 +1,8 @@
-import Form from "../components/Form"
+import React from "react";
+import Form from "../components/Form";
 
-function Login() {
-    return <Form route="/api/auth/token/" method="login" />
+function Login({ handleShowToast }) {
+    return <Form route="/api/auth/token/" method="login" handleShowToast={handleShowToast} />;
 }
 
-export default Login
+export default Login;

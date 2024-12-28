@@ -1,7 +1,16 @@
-import React from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import React, { useContext } from 'react';
+import {Link, Navigate, NavLink, useNavigate} from 'react-router-dom';
+import { UserContext } from '../context/UserContext';
 
-function NavbarComponent({ user }) {
+function NavbarComponent({ handleShowToast }) {
+  const { user, handleLogout } = useContext(UserContext);
+  const navigate = useNavigate();
+  const handleLogoutClick = () => {
+    handleLogout();
+    handleShowToast("Logout successful!");
+    navigate("/login")
+  };
+
   return (
     <nav className="navbar navbar-expand-lg bg-body-tertiary">
       <div className="container-fluid">
@@ -11,9 +20,13 @@ function NavbarComponent({ user }) {
         </button>
         <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div className="navbar-nav me-auto">
-            <NavLink className="nav-link" to="/requests">Requests</NavLink>
-            <NavLink className="nav-link" to="/users">Users</NavLink>
-            <NavLink className="nav-link" to="/notes">Notes</NavLink>
+            {user && (
+              <>
+                <NavLink className="nav-link" to="/requests">Requests</NavLink>
+                <NavLink className="nav-link" to="/users">Users</NavLink>
+                <NavLink className="nav-link" to="/notes">Notes</NavLink>
+              </>
+            )}
           </div>
           <div className="navbar-nav">
             {user ? (
@@ -31,7 +44,7 @@ function NavbarComponent({ user }) {
                 <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
                   <li><NavLink className="dropdown-item" to="/profile">Edit Profile</NavLink></li>
                   <li><hr className="dropdown-divider" /></li>
-                  <li><NavLink className="dropdown-item" to="/logout">Logout</NavLink></li>
+                  <li><button className="dropdown-item" onClick={handleLogoutClick}>Logout</button></li>
                 </ul>
               </div>
             ) : (
