@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { UserProvider, UserContext } from './context/UserContext';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -8,14 +8,20 @@ import FormNote from "./pages/FormNote";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NavbarComponent from "./components/Navbar";
-import Requests from "./components/Requests";
+import GameRequestForm from "./components/GameRequestForm";
+import GameRequestsList from "./components/GameRequestsList";
 
 function Logout({ handleShowToast }) {
   const { handleLogout } = useContext(UserContext);
+  const navigate = useNavigate();
+
   useEffect(() => {
     handleLogout();
-    handleShowToast("");
-  }, [handleLogout, handleShowToast]);
+    handleShowToast("Logout successful!");
+    navigate("/login");
+  }, [handleLogout, handleShowToast, navigate]);
+
+  return null;
 }
 
 function RegisterAndLogout() {
@@ -43,30 +49,21 @@ function App() {
           <Route path="/login" element={<Login handleShowToast={handleShowToast} />} />
           <Route path="/logout" element={<Logout handleShowToast={handleShowToast} />} />
           <Route path="/register" element={<RegisterAndLogout />} />
-          <Route
-            path="/requests"
-            element={
-              <ProtectedRoute>
-                <Requests />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/users"
-            element={
-              <ProtectedRoute>
-                {/* Place the Users component here */}
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notes"
-            element={
-              <ProtectedRoute>
-                <FormNote />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/game-requests" element={
+            <ProtectedRoute>
+              <GameRequestForm handleShowToast={handleShowToast} />
+            </ProtectedRoute>
+          }/>
+          <Route path="/requests" element={
+            <ProtectedRoute>
+              <GameRequestsList handleShowToast={handleShowToast} />
+            </ProtectedRoute>
+          }/>
+          <Route path="/notes" element={
+            <ProtectedRoute>
+              <FormNote />
+            </ProtectedRoute>
+          }/>
           <Route path="*" element={<NotFound />} />
         </Routes>
         <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 5 }}>

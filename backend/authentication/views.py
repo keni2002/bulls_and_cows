@@ -21,6 +21,7 @@ class UserMeView(APIView):
             "id": user.id,
             "name": user.username,
             "email": user.email,
-            "photo": user.profile.photo.url if user.profile.photo else None
+            "photo": user.profile.photo.url if user.profile.photo else None,
+            "games_won": user.profile.games_won,
         })
 

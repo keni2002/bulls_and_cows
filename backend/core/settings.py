@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'authentication.apps.AuthenticationConfig',
     'notes.apps.NotesConfig',
+    'game.apps.GameConfig',
     'rest_framework',
     'corsheaders'
 ]
@@ -140,3 +141,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+#for the 4 digits numbers of bulls and cows
+CRYPT_SECRET_KEY = env('CRYPT_SECRET_KEY')
+#from cryptography.fernet import Fernet
+# key = Fernet.generate_key()

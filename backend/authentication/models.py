@@ -5,6 +5,7 @@ class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     bio = models.TextField(blank=True, null=True)
     photo = models.ImageField(upload_to='users/%Y/%m/%d/', blank=True)
+    games_won = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.user.username
