@@ -86,3 +86,9 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = GameRequest.objects.all()
     serializer_class = GameRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.requester != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        return self.destroy(request, *args, **kwargs)

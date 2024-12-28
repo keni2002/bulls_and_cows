@@ -28,12 +28,22 @@ function GameRequestsList({ handleShowToast }) {
 
         setRequests(requestsWithUsernames);
       } catch (error) {
-        handleShowToast("Failed to Fetch Data.");
+        console.log("Failed to Fetch Data.");
       }
     };
 
     fetchUsersAndRequests();
   }, [handleShowToast, user]);
+
+  const handleDelete = async (id) => {
+    try {
+      await api.delete(`api/game/game-requests/${id}/`);
+      setRequests(requests.filter(request => request.id !== id));
+      handleShowToast("Request Deleted.");
+    } catch (error) {
+      handleShowToast("Failed to Delete Request.");
+    }
+  };
 
   return (
     <div>
@@ -43,14 +53,19 @@ function GameRequestsList({ handleShowToast }) {
       ) : (
         <ul className="list-group">
           {requests.map(request => (
-            <li className="list-group-item" key={request.id}>
-              <p><strong>Invitee:</strong> {request.requesteeUsername}</p>
-              <p><strong>Date:</strong> {new Date(request.created_at).toLocaleString()}</p>
-              {request.accepted ? (
-                <p className="text-success">Accepted</p>
-              ) : (
-                <p className="text-warning">Pending</p>
-              )}
+            <li className="list-group-item d-flex justify-content-between align-items-center" key={request.id}>
+              <div>
+                <p><strong>Invitee:</strong> {request.requesteeUsername}</p>
+                <p><strong>Date:</strong> {new Date(request.created_at).toLocaleString()}</p>
+                {request.accepted ? (
+                  <p className="text-success">Accepted</p>
+                ) : (
+                  <p className="text-warning">Pending</p>
+                )}
+              </div>
+              <button className="btn btn-danger" onClick={() => handleDelete(request.id)}>
+                <i className="fas fa-trash"></i>
+              </button>
             </li>
           ))}
         </ul>
@@ -63,4 +78,3 @@ function GameRequestsList({ handleShowToast }) {
 }
 
 export default GameRequestsList;
-
