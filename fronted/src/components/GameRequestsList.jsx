@@ -2,58 +2,65 @@ import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import { UserContext } from '../context/UserContext';
 import { Link } from 'react-router-dom';
+import '../styles/FloatingButton.css';
 
 function GameRequestsList({ handleShowToast }) {
   const [requests, setRequests] = useState([]);
+  const [users, setUsers] = useState([]);
   const { user } = useContext(UserContext);
 
   useEffect(() => {
-    const fetchRequests = async () => {
+    const fetchUsersAndRequests = async () => {
       try {
-        const response = await api.get('api/game/game-requests/');
-        setRequests(response.data);
+        const usersResponse = await api.get('api/game/users/');
+        setUsers(usersResponse.data);
+
+        const requestsResponse = await api.get('api/game/game-requests/');
+        const filteredRequests = requestsResponse.data.filter(request => request.requester === user.id);
+
+        const requestsWithUsernames = filteredRequests.map(request => {
+          const requestee = usersResponse.data.find(u => u.id === request.requestee);
+          return {
+            ...request,
+            requesteeUsername: requestee ? requestee.username : 'Unknown'
+          };
+        });
+
+        setRequests(requestsWithUsernames);
       } catch (error) {
-        handleShowToast("Failed to Fetch Requests.");
+        handleShowToast("Failed to Fetch Data.");
       }
     };
 
-    fetchRequests();
-  }, [handleShowToast]);
-
-  const handleAccept = async (id) => {
-    try {
-      await api.patch(`/api/requests/${id}/`, { accepted: true });
-      setRequests(requests.map(request => request.id === id ? { ...request, accepted: true } : request));
-      handleShowToast("Request Accepted.");
-    } catch (error) {
-      handleShowToast("Failed to Accept Request.");
-    }
-  };
+    fetchUsersAndRequests();
+  }, [handleShowToast, user]);
 
   return (
     <div>
-      <h2>Game Requests</h2>
+      <h2>Your Requests</h2>
       {requests.length === 0 ? (
-        <p>No game requests available.</p>
+        <p>No game requests yet.</p>
       ) : (
         <ul className="list-group">
           {requests.map(request => (
             <li className="list-group-item" key={request.id}>
-              <p><strong>Requester:</strong> {request.requester}</p>
-              <p><strong>Requestee:</strong> {request.requestee}</p>
+              <p><strong>Invitee:</strong> {request.requesteeUsername}</p>
               <p><strong>Date:</strong> {new Date(request.created_at).toLocaleString()}</p>
               {request.accepted ? (
                 <p className="text-success">Accepted</p>
               ) : (
-                <button className="btn btn-primary" onClick={() => handleAccept(request.id)}>Accept</button>
+                <p className="text-warning">Pending</p>
               )}
             </li>
           ))}
         </ul>
       )}
-      <Link to="/game-requests" className="btn btn-primary mt-3">Invite to Play</Link>
+      <Link to="/game-requests" className="btn btn-primary floating-btn">
+        <i className="fas fa-plus"></i>
+      </Link>
     </div>
   );
 }
 
 export default GameRequestsList;
+

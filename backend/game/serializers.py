@@ -6,6 +6,9 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 
 
+
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     games_won = serializers.IntegerField(source='profile.games_won', read_only=True)
 
