@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_email(self, value):
         if not value:
             raise serializers.ValidationError('Email issues :(')
-        if User.objects.filter(email=value).exists() and value!= '':
+        if User.objects.filter(email=value).exists() and value != '':
             raise serializers.ValidationError("This email is already registered.")
         return value
 
@@ -27,9 +27,12 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
+        # Create a Profile for the newly created user
+        Profile.objects.create(user=user)
         return user
 
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['bio', 'photo']
+

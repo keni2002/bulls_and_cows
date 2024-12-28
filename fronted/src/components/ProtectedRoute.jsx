@@ -3,6 +3,9 @@ import { jwtDecode } from "jwt-decode";
 import api from "../api";
 import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants";
 import { useState, useEffect } from "react";
+import Login from "../pages/Login.jsx";
+import Register from "../pages/Register.jsx";
+import Home from "../pages/Home.jsx";
 
 
 function ProtectedRoute({ children }) {
@@ -50,6 +53,7 @@ function ProtectedRoute({ children }) {
     if (isAuthorized === null) {
         return <div>Loading...</div>;
     }
+
 
     return isAuthorized ? children : <Navigate to="/login" />;
 }
