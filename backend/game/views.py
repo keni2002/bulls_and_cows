@@ -77,10 +77,21 @@ class GuessListCreate(generics.ListCreateAPIView):
         serializer = GuessSerializer(guess_record)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-class GameRequestListCreate(generics.ListCreateAPIView):
-    queryset = GameRequest.objects.all()
+
+
+class GameRequestListCreateView(generics.ListCreateAPIView):
     serializer_class = GameRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # Solo devolvemos las solicitudes en las que el usuario es el solicitante o el destinatario
+        return GameRequest.objects.filter(requester=user) | GameRequest.objects.filter(requestee=user)
+
+    def perform_create(self, serializer):
+        serializer.save(requester=self.request.user)
+
+
 
 class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = GameRequest.objects.all()
@@ -89,6 +100,8 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.requester != request.user:
+        # Permitir que tanto el solicitante como el destinatario puedan eliminar la solicitud
+        if instance.requester != request.user and instance.requestee != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
         return self.destroy(request, *args, **kwargs)
+

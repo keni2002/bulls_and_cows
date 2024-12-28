@@ -22,7 +22,8 @@ function NavbarComponent({ handleShowToast }) {
           <div className="navbar-nav me-auto">
             {user && (
               <>
-                <NavLink className="nav-link" to="/requests">Requests</NavLink>
+                <NavLink className="nav-link" to="/requests">Your Requests</NavLink>
+                <NavLink className="nav-link" to="/received-requests">Received Requests</NavLink>
                 <NavLink className="nav-link" to="/users">Users</NavLink>
                 <NavLink className="nav-link" to="/notes">Notes</NavLink>
               </>

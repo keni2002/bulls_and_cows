@@ -1,6 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { UserProvider, UserContext } from './context/UserContext';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
@@ -10,7 +12,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NavbarComponent from "./components/Navbar";
 import GameRequestForm from "./components/GameRequestForm";
 import GameRequestsList from "./components/GameRequestsList";
-
+import ReceivedRequestsList from "./components/ReceivedRequestsList"
 function Logout({ handleShowToast }) {
   const { handleLogout } = useContext(UserContext);
   const navigate = useNavigate();
@@ -31,13 +33,8 @@ function RegisterAndLogout() {
 }
 
 function App() {
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-
   const handleShowToast = (message) => {
-    setToastMessage(message);
-    setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000); // Hide after 3 seconds
+    toast(message);
   };
 
   return (
@@ -59,6 +56,10 @@ function App() {
               <GameRequestsList handleShowToast={handleShowToast} />
             </ProtectedRoute>
           }/>
+          <Route path="/received-requests" element={
+            <ProtectedRoute> <ReceivedRequestsList handleShowToast={handleShowToast} />
+            </ProtectedRoute>
+          }/>
           <Route path="/notes" element={
             <ProtectedRoute>
               <FormNote />
@@ -66,23 +67,17 @@ function App() {
           }/>
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <div className="position-fixed bottom-0 end-0 p-3" style={{ zIndex: 5 }}>
-          <div
-            id="liveToast"
-            className={`toast ${showToast ? 'show' : 'hide'}`}
-            role="alert"
-            aria-live="assertive"
-            aria-atomic="true"
-          >
-            <div className="toast-header">
-              <strong className="me-auto">Notification</strong>
-              <button type="button" className="btn-close" onClick={() => setShowToast(false)}></button>
-            </div>
-            <div className="toast-body">
-              {toastMessage}
-            </div>
-          </div>
-        </div>
+        <ToastContainer
+          position="top-left"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
       </BrowserRouter>
     </UserProvider>
   );
