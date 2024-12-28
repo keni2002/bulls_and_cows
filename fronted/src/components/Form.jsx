@@ -2,13 +2,15 @@ import { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
-import "../styles/Form.css"
+import "../styles/Form.css";
 import LoadingIndicator from "./LoadingIndicator";
 
 function Form({ route, method }) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
     const navigate = useNavigate();
 
     const name = method === "login" ? "Login" : "Register";
@@ -17,8 +19,18 @@ function Form({ route, method }) {
         setLoading(true);
         e.preventDefault();
 
+        // Reset errors
+        setErrors({});
+
+        // Password match validation
+        if (method === "register" && password !== confirmPassword) {
+            setErrors({ password: ["Passwords do not match"] });
+            setLoading(false);
+            return;
+        }
+
         try {
-            const res = await api.post(route, { username, password })
+            const res = await api.post(route, { username, password });
             if (method === "login") {
                 localStorage.setItem(ACCESS_TOKEN, res.data.access);
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
@@ -27,7 +39,12 @@ function Form({ route, method }) {
                 navigate("/login")
             }
         } catch (error) {
-            alert(error)
+            // Check for error messages from backend
+            if (error.response && error.response.data) {
+                setErrors(error.response.data);
+            } else {
+                setErrors({ detail: [error.message] });
+            }
         } finally {
             setLoading(false)
         }
@@ -43,6 +60,7 @@ function Form({ route, method }) {
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Username"
             />
+            {errors.username && <small className="text-danger">{errors.username[0]}</small>}
             <input
                 className="form-input"
                 type="password"
@@ -50,24 +68,26 @@ function Form({ route, method }) {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
             />
-
-            {loading && <LoadingIndicator/>}
-            <button className="form-button" type="submit">
+            {errors.password && <small className="text-danger">{errors.password[0]}</small>}
+            {method === "register" && (
+                <>
+                    <input
+                        className="form-input"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm Password"
+                    />
+                    {errors.confirmPassword && <small className="text-danger">{errors.confirmPassword[0]}</small>}
+                </>
+            )}
+            {errors.detail && <small className="text-danger">{errors.detail}</small>}
+            {loading && <LoadingIndicator />}
+            <button className="form-button" type="submit" disabled={loading}>
                 {name}
             </button>
-            <div className="dropdown">
-                <button className="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                    Dropdown button
-                </button>
-                <ul className="dropdown-menu">
-                    <li><a className="dropdown-item" href="#">Action</a></li>
-                    <li><a className="dropdown-item" href="#">Another action</a></li>
-                    <li><a className="dropdown-item" href="#">Something else here</a></li>
-                </ul>
-            </div>
         </form>
     );
 }
 
-export default Form
+export default Form;
