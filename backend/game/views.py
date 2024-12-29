@@ -12,7 +12,8 @@ class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
-
+    def get_queryset(self):
+        return User.objects.all().order_by('-profile__games_won')
 
 
 class ProfileList(generics.ListAPIView):
@@ -86,7 +87,7 @@ class GameRequestListCreateView(generics.ListCreateAPIView):
     def get_queryset(self):
         user = self.request.user
         # Solo devolvemos las solicitudes en las que el usuario es el solicitante o el destinatario
-        return GameRequest.objects.filter(requester=user) | GameRequest.objects.filter(requestee=user)
+        return GameRequest.objects.filter(requester=user) | GameRequest.objects.filter(requestee=user).order_by('-created_at')
 
     def perform_create(self, serializer):
         serializer.save(requester=self.request.user)

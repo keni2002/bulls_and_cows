@@ -12,7 +12,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import NavbarComponent from "./components/Navbar";
 import GameRequestForm from "./components/GameRequestForm";
 import GameRequestsList from "./components/GameRequestsList";
-import ReceivedRequestsList from "./components/ReceivedRequestsList"
+import ReceivedRequestsList from "./components/ReceivedRequestsList";
+import UserList from "./components/UserList"; // Importamos el nuevo componente
+
 function Logout({ handleShowToast }) {
   const { handleLogout } = useContext(UserContext);
   const navigate = useNavigate();
@@ -57,7 +59,13 @@ function App() {
             </ProtectedRoute>
           }/>
           <Route path="/received-requests" element={
-            <ProtectedRoute> <ReceivedRequestsList handleShowToast={handleShowToast} />
+            <ProtectedRoute>
+              <ReceivedRequestsList handleShowToast={handleShowToast} />
+            </ProtectedRoute>
+          }/>
+          <Route path="/users" element={
+            <ProtectedRoute>
+              <UserList handleShowToast={handleShowToast} />
             </ProtectedRoute>
           }/>
           <Route path="/notes" element={
