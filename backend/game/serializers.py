@@ -30,14 +30,20 @@ from rest_framework import serializers
 from .models import Game
 from .utils import encrypt, decrypt
 
+from rest_framework import serializers
+from .models import Game
+from .utils import encrypt, decrypt
+
 
 class GameSerializer(serializers.ModelSerializer):
-    player1_secret =     serializers.CharField(write_only=True)
+    player1_secret = serializers.CharField(write_only=True)
     player2_secret = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    opponent_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Game
-        fields = ['id', 'player1', 'player2', 'player1_secret', 'player2_secret', 'created_at', 'active', 'winner']
+        fields = ['id', 'player1', 'player2',  'created_at', 'active', 'winner',
+                  'opponent_name']
 
     def create(self, validated_data):
         player1_secret = validated_data.pop('player1_secret')
@@ -70,6 +76,14 @@ class GameSerializer(serializers.ModelSerializer):
         else:
             representation['player2_secret'] = None
         return representation
+
+    def get_opponent_name(self, obj):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user'):
+            user = request.user
+            opponent = obj.player2 if user == obj.player1 else obj.player1
+            return opponent.get_full_name() or opponent.username
+        return None
 
 
 class GuessSerializer(serializers.ModelSerializer):

@@ -35,6 +35,7 @@ class GameRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         game = super().get_object()
+
         if self.request.user != game.player1 and self.request.user != game.player2:
             raise permissions.PermissionDenied(detail="You are not a participant in this game.")
         return game

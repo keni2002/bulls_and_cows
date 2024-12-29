@@ -50,8 +50,7 @@ function Game({ handleShowToast }) {
       <div className="w-100" style={{ maxWidth: '600px' }}>
         <h2>Game</h2>
         <div>
-          <p><strong>Player 1:</strong> {game.player1.username}</p>
-          <p><strong>Player 2:</strong> {game.player2.username}</p>
+          <p><strong>Oponente:</strong> {game.opponent_name}</p>
           <p><strong>Status:</strong> {game.active ? 'Active' : 'Finished'}</p>
           {game.winner && <p><strong>Winner:</strong> {game.winner.username}</p>}
         </div>
