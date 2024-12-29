@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 function GameRequestForm({ handleShowToast }) {
   const [users, setUsers] = useState([]);
   const [requestee, setRequestee] = useState('');
+  const [player1Secret, setPlayer1Secret] = useState('');
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -27,8 +28,9 @@ function GameRequestForm({ handleShowToast }) {
     e.preventDefault();
     try {
       await api.post('api/game/game-requests/', {
-        requester: user.id,
         requestee,
+        player1_secret: player1Secret,
+        requester: user.id
       });
       handleShowToast("Game Request Sent!");
       navigate('/requests');
@@ -51,10 +53,21 @@ function GameRequestForm({ handleShowToast }) {
           <option value="">Select a user</option>
           {users.map(user => (
             <option key={user.id} value={user.id}>
-              {user.username}, Games Won: {user.games_won}
+              {user.username}
             </option>
           ))}
         </select>
+      </div>
+      <div className="mb-3">
+        <label htmlFor="player1Secret" className="form-label">Your Secret Number</label>
+        <input
+          type="text"
+          className="form-control"
+          id="player1Secret"
+          value={player1Secret}
+          onChange={(e) => setPlayer1Secret(e.target.value)}
+          required
+        />
       </div>
       <button type="submit" className="btn btn-primary">Send Request</button>
     </form>

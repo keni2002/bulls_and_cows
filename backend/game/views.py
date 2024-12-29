@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
@@ -80,17 +81,33 @@ class GuessListCreate(generics.ListCreateAPIView):
 
 
 
+
 class GameRequestListCreateView(generics.ListCreateAPIView):
     serializer_class = GameRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        # Solo devolvemos las solicitudes en las que el usuario es el solicitante o el destinatario
-        return GameRequest.objects.filter(requester=user) | GameRequest.objects.filter(requestee=user).order_by('-created_at')
+        return GameRequest.objects.filter(requester=user) | GameRequest.objects.filter(requestee=user).order_by(
+            '-created_at')
 
     def perform_create(self, serializer):
-        serializer.save(requester=self.request.user)
+        player1_secret = self.request.data.get('player1_secret')
+        requestee = self.request.data.get('requestee')
+
+        # Crear los datos del juego utilizando el serializador
+        game_data = {
+            'player1': self.request.user.id,
+            'player1_secret': player1_secret,
+            'player2': requestee
+        }
+
+        # Usar el serializador para crear el juego
+        game_serializer = GameSerializer(data=game_data)
+        game_serializer.is_valid(raise_exception=True)
+        game = game_serializer.save()
+
+        serializer.save(requester=self.request.user, game=game)
 
 
 class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
@@ -100,15 +117,21 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
-        # Permitir que tanto el solicitante como el destinatario puedan eliminar la solicitud
         if instance.requester != request.user and instance.requestee != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
         return self.destroy(request, *args, **kwargs)
 
-    def perform_destroy(self, instance):
+    def perform_update(self, serializer):
+        instance = serializer.save()
         if instance.accepted:
-            game = Game.objects.create(player1=instance.requester, player2=instance.requestee)
-            game.save()
-        instance.delete()
+            player2_secret = self.request.data.get('player2_secret')
+            if player2_secret:
+                game = instance.game
+                game.player2 = self.request.user
+                game.player2_secret = player2_secret
+                game.active = True
+                game.save()
+                instance.initiated = True
+                instance.save()
 
 

@@ -45,5 +45,9 @@ class Guess(models.Model):
 class GameRequest(models.Model):
     requester = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='sent_requests', on_delete=models.CASCADE)
     requestee = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_requests', on_delete=models.CASCADE)
+    game = models.OneToOneField(Game, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(default=timezone.now)
     accepted = models.BooleanField(default=False)
+    initiated = models.BooleanField(default=False)
+
+#jose y pepe
