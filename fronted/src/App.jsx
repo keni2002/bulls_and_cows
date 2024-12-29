@@ -14,7 +14,8 @@ import GameRequestForm from "./components/GameRequestForm";
 import GameRequestsList from "./components/GameRequestsList";
 import ReceivedRequestsList from "./components/ReceivedRequestsList";
 import UserList from "./components/UserList";
-import Game from "./components/Game"; // Importamos el nuevo componente
+import Game from "./components/Game";
+import AcceptRequestForm from "./components/AcceptRequestForm"; // Importamos el nuevo componente
 
 function Logout({ handleShowToast }) {
   const { handleLogout } = useContext(UserContext);
@@ -77,6 +78,11 @@ function App() {
           <Route path="/game/:gameId" element={
             <ProtectedRoute>
               <Game handleShowToast={handleShowToast} />
+            </ProtectedRoute>
+          }/>
+          <Route path="/accept-request/:requestId" element={
+            <ProtectedRoute>
+              <AcceptRequestForm handleShowToast={handleShowToast} />
             </ProtectedRoute>
           }/>
           <Route path="*" element={<NotFound />} />

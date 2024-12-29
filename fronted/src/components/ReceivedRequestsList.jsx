@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 function ReceivedRequestsList({ handleShowToast }) {
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
-  const [player2Secret, setPlayer2Secret] = useState('');
+  const [errors, setErrors] = useState({});
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -29,7 +29,7 @@ function ReceivedRequestsList({ handleShowToast }) {
 
         setRequests(requestsWithUsernames);
       } catch (error) {
-        handleShowToast("Failed to Fetch Data.");
+        setErrors({ fetch: error.response.data.detail });
       }
     };
 
@@ -42,27 +42,19 @@ function ReceivedRequestsList({ handleShowToast }) {
       setRequests(requests.filter(request => request.id !== id));
       handleShowToast("Request Rejected.");
     } catch (error) {
-      handleShowToast("Failed to Reject Request.");
+      setErrors({ delete: error.response.data.detail });
     }
   };
 
-  const handleAccept = async (request) => {
-    try {
-      await api.patch(`api/game/game-requests/${request.id}/`, {
-        accepted: true,
-        player2_secret: player2Secret,
-      });
-      handleShowToast("Game Started.");
-      navigate(`/game/${request.game.id}`);
-    } catch (error) {
-      handleShowToast("Failed to Start Game.");
-    }
+  const handleAcceptRedirect = (requestId) => {
+    navigate(`/accept-request/${requestId}`);
   };
 
   return (
     <div className="d-flex justify-content-center">
       <div className="w-100" style={{ maxWidth: '600px' }}>
         <h2>Received Requests</h2>
+        {errors.fetch && <p className="text-danger">{errors.fetch}</p>}
         {requests.length === 0 ? (
           <p>No game requests yet.</p>
         ) : (
@@ -74,20 +66,13 @@ function ReceivedRequestsList({ handleShowToast }) {
                   <p><strong>Date:</strong> {new Date(request.created_at).toLocaleString()}</p>
                 </div>
                 <div>
-                  <input
-                    type="text"
-                    className="form-control me-2"
-                    placeholder="Your Secret Number"
-                    value={player2Secret}
-                    onChange={(e) => setPlayer2Secret(e.target.value)}
-                    required
-                  />
-                  <button className="btn btn-success me-2" onClick={() => handleAccept(request)}>
-                    <i className="bi bi-play"></i>
+                  <button className="btn btn-success me-2" onClick={() => handleAcceptRedirect(request.id)}>
+                    <i className="bi bi-play"></i> Accept
                   </button>
                   <button className="btn btn-danger" onClick={() => handleDelete(request.id)}>
-                    <i className="bi bi-trash3"></i>
+                    <i className="bi bi-trash3"></i> Reject
                   </button>
+                  {errors.delete && <p className="text-danger">{errors.delete}</p>}
                 </div>
               </li>
             ))}

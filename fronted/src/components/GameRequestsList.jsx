@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import { UserContext } from '../context/UserContext';
-import { Link } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import '../styles/FloatingButton.css';
 
 function GameRequestsList({ handleShowToast }) {
   const [requests, setRequests] = useState([]);
   const [users, setUsers] = useState([]);
   const { user } = useContext(UserContext);
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchUsersAndRequests = async () => {
@@ -28,7 +29,7 @@ function GameRequestsList({ handleShowToast }) {
 
         setRequests(requestsWithUsernames);
       } catch (error) {
-        console.log("failed to fetch data")
+        console.log("failed to fetch data");
       }
     };
 
@@ -42,6 +43,16 @@ function GameRequestsList({ handleShowToast }) {
       handleShowToast("Request Deleted.");
     } catch (error) {
       handleShowToast("Failed to Delete Request.");
+    }
+  };
+
+  const handlePlay = async (gameId) => {
+    try {
+      await api.patch(`api/game/games/${gameId}/`, { initialized: true });
+      handleShowToast("Game Initialized.");
+      navigate(`/game/${gameId}`)
+    } catch (error) {
+      handleShowToast("Failed to Initialize Game.");
     }
   };
 
@@ -59,7 +70,12 @@ function GameRequestsList({ handleShowToast }) {
                   <p><strong>Invitee:</strong> {request.requesteeUsername}</p>
                   <p><strong>Date:</strong> {new Date(request.created_at).toLocaleString()}</p>
                   {request.accepted ? (
-                    <p className="text-success">Accepted</p>
+                    <>
+                      <p className="text-success">Accepted</p>
+                      <button className="btn btn-success" onClick={() => handlePlay(request.game.id)}>
+                        <i className="bi bi-play"></i> Play
+                      </button>
+                    </>
                   ) : (
                     <p className="text-warning">Pending</p>
                   )}

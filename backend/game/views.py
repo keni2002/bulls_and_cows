@@ -27,10 +27,20 @@ class GameListCreate(generics.ListCreateAPIView):
     serializer_class = GameSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class GameRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        game = super().get_object()
+        if self.request.user != game.player1 and self.request.user != game.player2:
+            raise permissions.PermissionDenied(detail="You are not a participant in this game.")
+        return game
+
+
+
 
 class GuessListCreate(generics.ListCreateAPIView):
     queryset = Guess.objects.all()
@@ -50,6 +60,10 @@ class GuessListCreate(generics.ListCreateAPIView):
             return Response({'detail': 'Guess must be a 4-digit number.'}, status=status.HTTP_400_BAD_REQUEST)
 
         game = Game.objects.get(id=game_id)
+        game_request = GameRequest.objects.get(game=game)
+        if not game_request.initiated:
+            return Response({'detail': 'The game has not been initialized.'}, status=status.HTTP_400_BAD_REQUEST)
+
         if player != game.player1 and player != game.player2:
             return Response({'detail': 'You are not a participant in this game.'}, status=status.HTTP_403_FORBIDDEN)
 
@@ -81,7 +95,6 @@ class GuessListCreate(generics.ListCreateAPIView):
 
 
 
-
 class GameRequestListCreateView(generics.ListCreateAPIView):
     serializer_class = GameRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -110,6 +123,8 @@ class GameRequestListCreateView(generics.ListCreateAPIView):
         serializer.save(requester=self.request.user, game=game)
 
 
+
+
 class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = GameRequest.objects.all()
     serializer_class = GameRequestSerializer
@@ -117,6 +132,7 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
+        # Permitir que tanto el solicitante como el destinatario puedan eliminar la solicitud
         if instance.requester != request.user and instance.requestee != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
         return self.destroy(request, *args, **kwargs)
@@ -126,12 +142,15 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         if instance.accepted:
             player2_secret = self.request.data.get('player2_secret')
             if player2_secret:
-                game = instance.game
-                game.player2 = self.request.user
-                game.player2_secret = player2_secret
-                game.active = True
-                game.save()
-                instance.initiated = True
+                game_data = {
+                    'player2': self.request.user.id,
+                    'player2_secret': player2_secret,
+                    'active': True
+                }
+                game_serializer = GameSerializer(instance.game, data=game_data, partial=True)
+                game_serializer.is_valid(raise_exception=True)
+                game_serializer.save()
+                instance.initiated = False
                 instance.save()
-
+        return Response({"game_id": instance.game.id}, status=status.HTTP_200_OK)
 

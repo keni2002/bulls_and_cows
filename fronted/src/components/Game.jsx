@@ -1,27 +1,32 @@
 import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import { UserContext } from '../context/UserContext';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 function Game({ handleShowToast }) {
   const { gameId } = useParams();
   const { user } = useContext(UserContext);
+  const navigate = useNavigate();
   const [game, setGame] = useState(null);
   const [guess, setGuess] = useState('');
   const [guesses, setGuesses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchGame = async () => {
       try {
         const response = await api.get(`/api/game/games/${gameId}/`);
         setGame(response.data);
+        setLoading(false);
       } catch (error) {
-        handleShowToast("Failed to Fetch Game.");
+        setErrors({ fetch: error.response.data.detail });
+        navigate('/');
       }
     };
 
     fetchGame();
-  }, [gameId, handleShowToast]);
+  }, [gameId, navigate]);
 
   const handleGuess = async (e) => {
     e.preventDefault();
@@ -32,13 +37,13 @@ function Game({ handleShowToast }) {
       });
       setGuesses([...guesses, response.data]);
       setGuess('');
-      handleShowToast("Guess Submitted!");
     } catch (error) {
-      handleShowToast("Failed to Submit Guess.");
+      setErrors({ guess: error.response.data.detail });
     }
   };
 
-  if (!game) return <p>Loading game...</p>;
+  if (loading) return <p>Loading game...</p>;
+  if (errors.fetch) return <p className="text-danger">{errors.fetch}</p>;
 
   return (
     <div className="d-flex justify-content-center">
@@ -61,6 +66,7 @@ function Game({ handleShowToast }) {
               onChange={(e) => setGuess(e.target.value)}
               required
             />
+            {errors.guess && <p className="text-danger">{errors.guess}</p>}
           </div>
           <button type="submit" className="btn btn-primary">Submit Guess</button>
         </form>
