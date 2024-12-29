@@ -42,7 +42,7 @@ class GameSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Game
-        fields = ['id', 'player1', 'player2',  'created_at', 'active', 'winner',
+        fields = ['id', 'player1', 'player2', 'player1_secret', 'player2_secret', 'created_at', 'active', 'winner',
                   'opponent_name']
 
     def create(self, validated_data):
@@ -75,6 +75,12 @@ class GameSerializer(serializers.ModelSerializer):
             representation['player2_secret'] = decrypt(instance.player2_secret_encrypted)
         else:
             representation['player2_secret'] = None
+
+        if self.context.get('exclude_secrets'):
+            representation.pop('player1_secret', None)
+            representation.pop('player2_secret', None)
+
+
         return representation
 
     def get_opponent_name(self, obj):
@@ -96,5 +102,14 @@ class GameRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = GameRequest
         fields = ['id', 'requester', 'requestee', 'game', 'created_at', 'accepted', 'initiated']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        if self.context.get('exclude_secrets'):
+            if 'game' in representation:
+                representation['game'].pop('player1_secret', None)
+                representation['game'].pop('player2_secret', None)
+        return representation
 
 

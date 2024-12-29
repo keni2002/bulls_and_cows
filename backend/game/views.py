@@ -32,6 +32,10 @@ class GameRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
     permission_classes = [permissions.IsAuthenticated]
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['exclude_secrets'] = True
+        return context
 
     def get_object(self):
         game = super().get_object()
@@ -104,6 +108,11 @@ class GameRequestListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         return GameRequest.objects.filter(requester=user) | GameRequest.objects.filter(requestee=user).order_by(
             '-created_at')
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['exclude_secrets'] = True
+        return context
 
     def perform_create(self, serializer):
         player1_secret = self.request.data.get('player1_secret')
