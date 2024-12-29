@@ -93,7 +93,6 @@ class GameRequestListCreateView(generics.ListCreateAPIView):
         serializer.save(requester=self.request.user)
 
 
-
 class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = GameRequest.objects.all()
     serializer_class = GameRequestSerializer
@@ -105,4 +104,11 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         if instance.requester != request.user and instance.requestee != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
         return self.destroy(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        if instance.accepted:
+            game = Game.objects.create(player1=instance.requester, player2=instance.requestee)
+            game.save()
+        instance.delete()
+
 
