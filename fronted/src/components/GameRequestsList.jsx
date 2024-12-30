@@ -46,9 +46,9 @@ function GameRequestsList({ handleShowToast }) {
     }
   };
 
-  const handlePlay = async (gameId) => {
+  const handlePlay = async (gameId,requestId) => {
     try {
-      await api.patch(`api/game/games/${gameId}/`, { initialized: true });
+      await api.patch(`api/game/game-requests/${requestId}/`, { initiated: true });
       handleShowToast("Game Initialized.");
       navigate(`/game/${gameId}`)
     } catch (error) {
@@ -72,7 +72,7 @@ function GameRequestsList({ handleShowToast }) {
                   {request.accepted ? (
                     <>
                       <p className="text-success">Accepted</p>
-                      <button className="btn btn-success" onClick={() => handlePlay(request.game.id)}>
+                      <button className="btn btn-success" onClick={() => handlePlay(request.game.id,request.id)}>
                         <i className="bi bi-play"></i> Play
                       </button>
                     </>

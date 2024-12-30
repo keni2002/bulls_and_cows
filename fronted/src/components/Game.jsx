@@ -10,6 +10,7 @@ function Game({ handleShowToast }) {
   const [game, setGame] = useState(null);
   const [guess, setGuess] = useState('');
   const [guesses, setGuesses] = useState([]);
+  const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
 
@@ -18,6 +19,7 @@ function Game({ handleShowToast }) {
       try {
         const response = await api.get(`/api/game/games/${gameId}/`);
         setGame(response.data);
+        fetchGuesses(gameId);
         setLoading(false);
       } catch (error) {
         setErrors({ fetch: error.response.data.detail });
@@ -25,8 +27,17 @@ function Game({ handleShowToast }) {
       }
     };
 
+    const fetchGuesses = async (gameId) => {
+      try {
+        const response = await api.get(`/api/game/games/${gameId}/guesses/`);
+        setGuesses(response.data);
+      } catch (error) {
+        setErrors({ fetch: error.response.data.detail });
+      }
+    };
+
     fetchGame();
-  }, [gameId, navigate]);
+  }, [gameId, navigate, refresh]);
 
   const handleGuess = async (e) => {
     e.preventDefault();
@@ -35,8 +46,8 @@ function Game({ handleShowToast }) {
         game: gameId,
         guess,
       });
-      setGuesses([...guesses, response.data]);
       setGuess('');
+      setRefresh(prev => !prev); // Forzar actualización cambiando el valor de refresh
     } catch (error) {
       setErrors({ guess: error.response.data.detail });
     }
@@ -44,6 +55,9 @@ function Game({ handleShowToast }) {
 
   if (loading) return <p>Loading game...</p>;
   if (errors.fetch) return <p className="text-danger">{errors.fetch}</p>;
+
+  const userGuesses = guesses.filter(g => g.player === user.id);
+  const opponentGuesses = guesses.filter(g => g.player !== user.id);
 
   return (
     <div className="d-flex justify-content-center">
@@ -54,9 +68,9 @@ function Game({ handleShowToast }) {
           <p><strong>Status:</strong> {game.active ? 'Active' : 'Finished'}</p>
           {game.winner && <p><strong>Winner:</strong> {game.winner.username}</p>}
         </div>
-        <form onSubmit={handleGuess}>
-          <div className="mb-3">
-            <label htmlFor="guess" className="form-label">Enter your guess</label>
+        <form onSubmit={handleGuess} className="w-auto w-100">
+          <div className="mb-3 w-100">
+            <label htmlFor="guess" className="form-label w-100">Enter your guess</label>
             <input
               type="text"
               className="form-control"
@@ -69,16 +83,50 @@ function Game({ handleShowToast }) {
           </div>
           <button type="submit" className="btn btn-primary">Submit Guess</button>
         </form>
-        <h3>Guesses</h3>
-        <ul className="list-group">
-          {guesses.map(g => (
-            <li className="list-group-item" key={g.id}>
-              <p><strong>Guess:</strong> {g.guess}</p>
-              <p><strong>Bulls:</strong> {g.bulls}</p>
-              <p><strong>Cows:</strong> {g.cows}</p>
-            </li>
-          ))}
-        </ul>
+
+        <div className="accordion" id="accordionExample">
+          <div className="accordion-item">
+            <h2 className="accordion-header" id="headingOne">
+              <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                My Guesses
+              </button>
+            </h2>
+            <div id="collapseOne" className="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+              <div className="accordion-body">
+                <ul className="list-group">
+                  {userGuesses.map(g => (
+                    <li className="list-group-item" key={g.id}>
+                      <p><strong>Guess:</strong> {g.guess}</p>
+                      <p><strong>Bulls:</strong> {g.bulls}</p>
+                      <p><strong>Cows:</strong> {g.cows}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="accordion-item">
+            <h2 className="accordion-header" id="headingTwo">
+              <button className="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Opponent's Guesses
+              </button>
+            </h2>
+            <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+              <div className="accordion-body">
+                <p><strong>My Secret Number:</strong> {game.user_secret}</p> {/* Mostrar el número secreto */}
+                <ul className="list-group">
+                  {opponentGuesses.map(g => (
+                    <li className="list-group-item" key={g.id}>
+                      <p><strong>Guess:</strong> {g.guess}</p>
+                      <p><strong>Bulls:</strong> {g.bulls}</p>
+                      <p><strong>Cows:</strong> {g.cows}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

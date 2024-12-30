@@ -48,9 +48,19 @@ class GameRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
 
 class GuessListCreate(generics.ListCreateAPIView):
-    queryset = Guess.objects.all()
     serializer_class = GuessSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        game_id = self.kwargs.get('game_id')
+        if not game_id:
+            return Guess.objects.none()
+        game = Game.objects.get(id=game_id)
+        if user != game.player1 and user != game.player2:
+            raise permissions.PermissionDenied(detail="You are not a participant in this game.")
+        return Guess.objects.filter(game=game).order_by('-created_at')
+
 
     def create(self, request, *args, **kwargs):
         data = request.data

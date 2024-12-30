@@ -70,11 +70,17 @@ class GameSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+
         representation['player1_secret'] = decrypt(instance.player1_secret_encrypted)
         if instance.player2_secret_encrypted:
             representation['player2_secret'] = decrypt(instance.player2_secret_encrypted)
         else:
             representation['player2_secret'] = None
+
+        if self.context.get('request').user == instance.player1:
+            representation['user_secret'] = decrypt(instance.player1_secret_encrypted)
+        elif self.context.get('request').user == instance.player2:
+            representation['user_secret'] = decrypt(instance.player2_secret_encrypted)
 
         if self.context.get('exclude_secrets'):
             representation.pop('player1_secret', None)
