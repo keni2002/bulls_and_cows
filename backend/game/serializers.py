@@ -77,9 +77,9 @@ class GameSerializer(serializers.ModelSerializer):
         else:
             representation['player2_secret'] = None
 
-        if self.context.get('request').user == instance.player1:
+        if self.context.get('request').user == instance.player1 and instance.player1_secret_encrypted :
             representation['user_secret'] = decrypt(instance.player1_secret_encrypted)
-        elif self.context.get('request').user == instance.player2:
+        elif self.context.get('request').user == instance.player2 and instance.player2_secret_encrypted:
             representation['user_secret'] = decrypt(instance.player2_secret_encrypted)
 
         if self.context.get('exclude_secrets'):

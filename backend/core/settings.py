@@ -11,8 +11,8 @@ SECRET_KEY = env('SECRET_KEY')
 
 
 
-DEBUG = env('DEBUG') == "True"
-
+# DEBUG = env('DEBUG') == "True"
+DEBUG = True
 ALLOWED_HOSTS = []
 
 
