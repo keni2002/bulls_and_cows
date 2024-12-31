@@ -18,6 +18,7 @@ function AcceptRequestForm({ handleShowToast }) {
         player2_secret: player2Secret,
       });
       const { game } = response.data;
+      localStorage.setItem("secret", player2Secret)
       handleShowToast("Game Started.");
       navigate(`/game/${game.id}`);
     } catch (error) {

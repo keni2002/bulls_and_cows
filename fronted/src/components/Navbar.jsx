@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import {Link, Navigate, NavLink, useNavigate} from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 
 function NavbarComponent({ handleShowToast }) {
@@ -26,6 +26,7 @@ function NavbarComponent({ handleShowToast }) {
                 <NavLink className="nav-link" to="/received-requests">Received Requests</NavLink>
                 <NavLink className="nav-link" to="/users">Users</NavLink>
                 <NavLink className="nav-link" to="/notes">Notes</NavLink>
+                <NavLink className="nav-link" to="/games">Your Games</NavLink> {/* Nuevo enlace */}
               </>
             )}
           </div>

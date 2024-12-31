@@ -1,4 +1,5 @@
 from django.db import IntegrityError
+from django.db.models import QuerySet
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework import status
@@ -27,6 +28,17 @@ class GameListCreate(generics.ListCreateAPIView):
     serializer_class = GameSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['exclude_secrets'] = True
+        return context
+
+    def get_queryset(self):
+        queryset = []
+        for game in Game.objects.all():
+            if game.gamerequest.accepted:
+                queryset.append(game)
+        return queryset
 
 class GameRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = Game.objects.all()
@@ -75,10 +87,19 @@ class GuessListCreate(generics.ListCreateAPIView):
             return Response({'detail': 'Guess must be a 4-digit number.'}, status=status.HTTP_400_BAD_REQUEST)
 
         game = Game.objects.get(id=game_id)
-        game_request = GameRequest.objects.get(game=game)
-        if not game_request.initiated:
-            return Response({'detail': 'The game has not been initialized.'}, status=status.HTTP_400_BAD_REQUEST)
+        game_request = None
+        try:
+            game_request = GameRequest.objects.get(game=game)
+        except:
+            game_request = None
 
+        if game_request:
+            if not game_request.initiated:
+                return Response({'detail': 'Waiting for the oponent. Be patient for initiated.'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                pass
+        if game.winner:
+            return Response({'detail': 'The game has finished'}, status=status.HTTP_403_FORBIDDEN)
         if player != game.player1 and player != game.player2:
             return Response({'detail': 'You are not a participant in this game.'}, status=status.HTTP_403_FORBIDDEN)
 

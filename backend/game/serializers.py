@@ -39,11 +39,12 @@ class GameSerializer(serializers.ModelSerializer):
     player1_secret = serializers.CharField(write_only=True)
     player2_secret = serializers.CharField(write_only=True, required=False, allow_blank=True)
     opponent_name = serializers.SerializerMethodField()
-
+    winner_name = serializers.SerializerMethodField()
+    opponent_secret = serializers.SerializerMethodField()
     class Meta:
         model = Game
         fields = ['id', 'player1', 'player2', 'player1_secret', 'player2_secret', 'created_at', 'active', 'winner',
-                  'opponent_name']
+                  'opponent_name','winner_name', 'opponent_secret','gamerequest']
 
     def create(self, validated_data):
         player1_secret = validated_data.pop('player1_secret')
@@ -77,10 +78,7 @@ class GameSerializer(serializers.ModelSerializer):
         else:
             representation['player2_secret'] = None
 
-        if self.context.get('request').user == instance.player1 and instance.player1_secret_encrypted :
-            representation['user_secret'] = decrypt(instance.player1_secret_encrypted)
-        elif self.context.get('request').user == instance.player2 and instance.player2_secret_encrypted:
-            representation['user_secret'] = decrypt(instance.player2_secret_encrypted)
+
 
         if self.context.get('exclude_secrets'):
             representation.pop('player1_secret', None)
@@ -97,6 +95,18 @@ class GameSerializer(serializers.ModelSerializer):
             return opponent.get_full_name() or opponent.username
         return None
 
+    def get_winner_name(self, obj):
+        if obj.winner:
+            return obj.winner.get_full_name() or obj.winner.username
+        return None
+
+    def get_opponent_secret(self, obj):
+        if obj.winner:
+            request = self.context.get('request')
+            user = request.user if request else None
+            if user and (user==obj.player1 or user==obj.player2):
+                return obj.player1_secret if user == obj.player2 else obj.player2_secret
+        return None
 
 class GuessSerializer(serializers.ModelSerializer):
     class Meta:
@@ -111,6 +121,7 @@ class GameRequestSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+
 
         if self.context.get('exclude_secrets'):
             if 'game' in representation:

@@ -50,6 +50,8 @@ function GameRequestsList({ handleShowToast }) {
     try {
       await api.patch(`api/game/game-requests/${requestId}/`, { initiated: true });
       handleShowToast("Game Initialized.");
+      //delete the request
+      await api.delete(`api/game/game-requests/${requestId}/`);
       navigate(`/game/${gameId}`)
     } catch (error) {
       handleShowToast("Failed to Initialize Game.");

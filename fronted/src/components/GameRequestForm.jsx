@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import {ACCESS_TOKEN} from "../constants.js";
 
 function GameRequestForm({ handleShowToast }) {
   const [users, setUsers] = useState([]);
@@ -32,6 +33,7 @@ function GameRequestForm({ handleShowToast }) {
         player1_secret: player1Secret,
         requester: user.id
       });
+      localStorage.setItem("secret", player1Secret)
       handleShowToast("Game Request Sent!");
       navigate('/requests');
     } catch (error) {

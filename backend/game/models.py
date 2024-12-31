@@ -7,6 +7,11 @@ from django.utils import timezone
 from .utils import encrypt, decrypt
 
 
+# class GameAceptedManager(models.Manager):
+#     def get_queryset(self):
+#         if self.gamerequest.accepted:
+#             pass
+
 class Game(models.Model):
     player1 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='player1_games', on_delete=models.CASCADE)
     player2 = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='player2_games', on_delete=models.CASCADE, null=True, blank=True)
@@ -33,6 +38,8 @@ class Game(models.Model):
     def player2_secret(self, value):
         self.player2_secret_encrypted = encrypt(value)
         self.save()
+
+
 
 class Guess(models.Model):
     game = models.ForeignKey(Game, related_name='guesses', on_delete=models.CASCADE)
