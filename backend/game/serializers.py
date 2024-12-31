@@ -45,6 +45,7 @@ class GameSerializer(serializers.ModelSerializer):
         model = Game
         fields = ['id', 'player1', 'player2', 'player1_secret', 'player2_secret', 'created_at', 'active', 'winner',
                   'opponent_name','winner_name', 'opponent_secret','gamerequest']
+        read_only_fields = ['gamerequest']
 
     def create(self, validated_data):
         player1_secret = validated_data.pop('player1_secret')

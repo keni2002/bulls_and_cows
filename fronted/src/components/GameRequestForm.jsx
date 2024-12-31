@@ -18,7 +18,7 @@ function GameRequestForm({ handleShowToast }) {
         const filteredUsers = response.data.filter(u => u.id !== user.id);
         setUsers(filteredUsers);
       } catch (error) {
-        handleShowToast("Failed to Fetch Users.");
+
       }
     };
 

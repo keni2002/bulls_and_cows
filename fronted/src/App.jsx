@@ -15,8 +15,9 @@ import GameRequestsList from "./components/GameRequestsList";
 import ReceivedRequestsList from "./components/ReceivedRequestsList";
 import UserList from "./components/UserList";
 import Game from "./components/Game";
-import GamesList from "./components/GamesList"; // Importamos el nuevo componente
+import GamesList from "./components/GamesList";
 import AcceptRequestForm from "./components/AcceptRequestForm";
+import SecretNumberFormPage from "./components/SecretNumberFormPage"; // Importamos el nuevo componente
 
 function Logout({ handleShowToast }) {
   const { handleLogout } = useContext(UserContext);
@@ -25,7 +26,7 @@ function Logout({ handleShowToast }) {
   useEffect(() => {
     handleLogout();
     handleShowToast("Logout successful!");
-    navigate("/login");
+    navigate("/");
   }, [handleLogout, handleShowToast, navigate]);
 
   return null;
@@ -89,6 +90,11 @@ function App() {
           <Route path="/accept-request/:requestId" element={
             <ProtectedRoute>
               <AcceptRequestForm handleShowToast={handleShowToast} />
+            </ProtectedRoute>
+          }/>
+          <Route path="/secret-number" element={
+            <ProtectedRoute>
+              <SecretNumberFormPage handleShowToast={handleShowToast} />
             </ProtectedRoute>
           }/>
           <Route path="*" element={<NotFound />} />

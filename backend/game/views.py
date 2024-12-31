@@ -1,6 +1,7 @@
 from django.db import IntegrityError
 from django.db.models import QuerySet
 from rest_framework import generics, permissions
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework import status
 from .models import  Game, Guess, GameRequest
@@ -194,4 +195,16 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
                 instance.initiated = False
                 instance.save()
         return Response({"game_id": instance.game.id}, status=status.HTTP_200_OK)
+
+    #sobrescribo para evitar que el contrario valide el juego con initated = true
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        # Verifica si el usuario actual es el requester
+        if request.user != instance.requester:
+            raise PermissionDenied("Wait for the requester user")
+        partial = kwargs.pop('partial', False)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 

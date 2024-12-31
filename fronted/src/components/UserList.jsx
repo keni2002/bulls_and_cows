@@ -1,54 +1,53 @@
 import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import { UserContext } from '../context/UserContext';
+import {useNavigate} from "react-router-dom";
 
 function UserList({ handleShowToast }) {
   const [users, setUsers] = useState([]);
-  const { user } = useContext(UserContext);
+  const { user: currentUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await api.get('api/game/users/');
         // Excluir al usuario actual
-        const filteredUsers = response.data.filter(u => u.id !== user.id);
+        const filteredUsers = response.data.filter(u => u.id !== currentUser.id);
         setUsers(filteredUsers);
       } catch (error) {
-
+        handleShowToast("Failed to fetch users.");
       }
     };
 
     fetchUsers();
-  }, [handleShowToast, user]);
+  }, [handleShowToast, currentUser]);
 
-  const handleInvite = async (requesteeId) => {
-    try {
-      const response = await api.post('/api/game/game-requests/', { requestee: requesteeId });
-      handleShowToast("Invitation Sent!");
-    } catch (error) {
-      handleShowToast("Failed to Send Invitation.");
-    }
+  const handleInvite = (userId) => {
+    navigate(`/secret-number?requesteeId=${userId}`);
   };
 
   return (
     <div className="d-flex justify-content-center">
       <div className="w-100" style={{ maxWidth: '800px' }}>
-        <h2>Users</h2>
+        <h2>Usuarios</h2>
         {users.length === 0 ? (
-          <p>No users found.</p>
+          <p>No se encontraron usuarios.</p>
         ) : (
           <ul className="list-group">
-            {users.map(user => (
-              <li className="list-group-item d-flex justify-content-between align-items-center" key={user.id}>
+            {users.map(u => (
+              <li className="list-group-item d-flex flex-column" key={u.id}>
+                <div className="d-flex justify-content-between align-items-center">
                   <div>
-                      <p><strong>Username:</strong> {user.username}</p>
-                      <p><strong>Name:</strong> {user.first_name} {user.last_name}</p>
-                      <p><strong>Email:</strong> {user.email}</p>
-                      <p><strong>Games Won:</strong> {user.games_won}</p>
+                    <p><strong>Nombre de usuario:</strong> {u.username}</p>
+                    <p><strong>Nombre:</strong> {u.first_name} {u.last_name}</p>
+                    <p><strong>Email:</strong> {u.email}</p>
+                    <p><strong>Juegos ganados:</strong> {u.games_won}</p>
                   </div>
-                  <button className="btn btn-primary" onClick={() => handleInvite(user.id)}>
-                  Invite to Play
-                </button>
+                  <button className="btn btn-primary" onClick={() => handleInvite(u.id)}>
+                    Invitar a jugar
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

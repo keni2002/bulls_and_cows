@@ -39,9 +39,9 @@ function Form({ route, method, handleShowToast }) {
                 const userResponse = await api.get("/api/auth/user/me/");
                 setUser(userResponse.data);
                 handleShowToast("Login successful!");
-                navigate("/requests");
+                navigate("/games");
             } else {
-                handleShowToast("Registration successful!");
+                handleShowToast("Registro exitoso!");
                 navigate("/login");
             }
         } catch (error) {
@@ -58,42 +58,46 @@ function Form({ route, method, handleShowToast }) {
 
     return (
         <form onSubmit={handleSubmit} className="form-container">
-            <h1>{name}</h1>
-            <input
-                className="form-input"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Username"
-            />
-            {errors.username && <small className="text-danger">{errors.username[0]}</small>}
-            <input
-                className="form-input"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-            />
-            {errors.password && <small className="text-danger">{errors.password[0]}</small>}
-            {method === "register" && (
-                <>
-                    <input
-                        className="form-input"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm Password"
-                    />
-                    {errors.confirmPassword && <small className="text-danger">{errors.confirmPassword[0]}</small>}
-                </>
-            )}
-            {errors.detail && <small className="text-danger">{errors.detail}</small>}
-            {loading && <LoadingIndicator />}
-            <button className="form-button" type="submit" disabled={loading}>
-                {name}
-            </button>
+            <div className="d-flex w-50 align-items-center justify-content-around mb-3">
+                <button type="button" className="btn btn-link p-0" onClick={() => navigate("/")}><i
+                    className="bi bi-arrow-left"></i></button>
+                <h1 className="ms-2 mb-0">{name}</h1>
+            </div>
+                <input
+                    className="form-input"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="Username"
+                />
+                {errors.username && <small className="text-danger">{errors.username[0]}</small>}
+                <input
+                    className="form-input"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                />
+                {errors.password && <small className="text-danger">{errors.password[0]}</small>}
+                {method === "register" && (
+                    <>
+                        <input
+                            className="form-input"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Confirm Password"
+                        />
+                        {errors.confirmPassword && <small className="text-danger">{errors.confirmPassword[0]}</small>}
+                    </>
+                )}
+                {errors.detail && <small className="text-danger">{errors.detail}</small>}
+                {loading && <LoadingIndicator/>}
+                <button className="form-button" type="submit" disabled={loading}>
+                    {name}
+                </button>
         </form>
-    );
+);
 }
 
 export default Form;
