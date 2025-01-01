@@ -22,8 +22,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'first_name', 'last_name', 'username', 'email', 'games_won']
 
     def validate_email(self, value):
-        if not value:
-            raise serializers.ValidationError('Email issues :(')
+
         if User.objects.filter(email=value).exists() and value != '':
             raise serializers.ValidationError("This email is already registered.")
         return value

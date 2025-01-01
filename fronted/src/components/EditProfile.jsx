@@ -81,15 +81,18 @@ function EditProfile({ handleShowToast }) {
             {errors.last_name && <div className="text-danger">{errors.last_name}</div>}
           </div>
           <div className="mb-3">
-            <label htmlFor="email" className="form-label">Correo Electrónico</label>
+            <label htmlFor="email" className="form-label">Correo Electrónico(
+              <em className="text-warning">El email, será público</em>
+              )</label>
+
             <input
-              type="email"
+                type="email"
               className="form-control"
               id="email"
               name="email"
               value={profile.email}
               onChange={handleChange}
-              required
+
             />
             {errors.email && <div className="text-danger">{errors.email}</div>}
           </div>

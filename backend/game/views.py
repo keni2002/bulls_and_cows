@@ -29,7 +29,7 @@ class UserDetailView(generics.RetrieveUpdateAPIView):
         try:
             return super().update(request, *args, **kwargs)
         except ValidationError as e:
-            return Response({"email": ["Este correo electrónico ya está en uso."]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"email": ["Este correo electrónico ya está en uso."+ str(e)]}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileList(generics.ListAPIView):
