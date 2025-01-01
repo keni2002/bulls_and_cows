@@ -8,108 +8,181 @@ Bienvenido a **Bulls and Cows**, un clásico juego de deducción reinventado par
 
 **Bulls and Cows** es un juego de lápiz y papel tradicional en el que los jugadores intentan adivinar un número secreto de cuatro dígitos de su oponente. Este proyecto toma el concepto clásico y lo transforma en una experiencia interactiva en línea, permitiendo a los usuarios registrarse, iniciar sesión, iniciar partidas y mucho más.
 
-### Funcionalidades Principales
+[//]: # ()
+[//]: # (### Funcionalidades Principales)
 
-- **Registro y Autenticación**: Los usuarios pueden registrarse e iniciar sesión en sus cuentas.
-- **Solicitudes de Juego**: Los usuarios pueden enviar y recibir solicitudes de juego.
-- **Juego Interactivo**: Los jugadores pueden hacer conjeturas y ver las respuestas en tiempo real.
-- **Administración de Perfiles**: Los usuarios pueden actualizar sus perfiles y fotos de perfil.
-- **Lista de Juegos**: Los usuarios pueden ver una lista de sus juegos activos y completados.
+[//]: # ()
+[//]: # (- **Registro y Autenticación**: Los usuarios pueden registrarse e iniciar sesión en sus cuentas.)
 
-## Tecnologías Utilizadas
+[//]: # (- **Solicitudes de Juego**: Los usuarios pueden enviar y recibir solicitudes de juego.)
 
-### Backend
+[//]: # (- **Juego Interactivo**: Los jugadores pueden hacer conjeturas y ver las respuestas en tiempo real.)
 
-- **Django**: Framework de desarrollo web utilizado para construir el backend.
-- **Django REST Framework**: Utilizado para construir la API RESTful.
-- **PostgreSQL**: Base de datos utilizada para almacenar los datos de la aplicación.
+[//]: # (- **Administración de Perfiles**: Los usuarios pueden actualizar sus perfiles y fotos de perfil.)
 
-### Frontend
+[//]: # (- **Lista de Juegos**: Los usuarios pueden ver una lista de sus juegos activos y completados.)
 
-- **React**: Biblioteca de JavaScript utilizada para construir la interfaz de usuario.
-- **Bootstrap**: Framework CSS utilizado para el diseño y la presentación.
-- **Cloudinary**: Servicio externo utilizado para almacenar y gestionar las fotos de perfil de los usuarios.
+[//]: # ()
+[//]: # (## Tecnologías Utilizadas)
 
-## Instalación y Configuración
+[//]: # ()
+[//]: # (### Backend)
 
-### Backend
+[//]: # ()
+[//]: # (- **Django**: Framework de desarrollo web utilizado para construir el backend.)
 
-1. Clona el repositorio:
-    ```bash
-    git clone https://github.com/keni2002/bulls_and_cows.git
-    cd bulls_and_cows/backend
-    ```
+[//]: # (- **Django REST Framework**: Utilizado para construir la API RESTful.)
 
-2. Crea un entorno virtual e instala las dependencias:
-    ```bash
-    python3 -m venv env
-    source env/bin/activate  # En Windows usa `env\Scripts\activate`
-    pip install -r requirements.txt
-    ```
+[//]: # (- **PostgreSQL**: Base de datos utilizada para almacenar los datos de la aplicación.)
 
-3. Configura la base de datos en el archivo `settings.py`.
+[//]: # ()
+[//]: # (### Frontend)
 
-4. Ejecuta las migraciones:
-    ```bash
-    python manage.py migrate
-    ```
+[//]: # ()
+[//]: # (- **React**: Biblioteca de JavaScript utilizada para construir la interfaz de usuario.)
 
-5. Inicia el servidor de desarrollo:
-    ```bash
-    python manage.py runserver
-    ```
+[//]: # (- **Bootstrap**: Framework CSS utilizado para el diseño y la presentación.)
 
-### Frontend
+[//]: # (- **Cloudinary**: Servicio externo utilizado para almacenar y gestionar las fotos de perfil de los usuarios.)
 
-1. Ve al directorio del frontend:
-    ```bash
-    cd ../frontend
-    ```
+[//]: # ()
+[//]: # (## Instalación y Configuración)
 
-2. Instala las dependencias:
-    ```bash
-    npm install
-    ```
+[//]: # ()
+[//]: # (### Backend)
 
-3. Configura Cloudinary en el archivo `.env`:
-    ```env
-    REACT_APP_CLOUDINARY_CLOUD_NAME=tu_cloud_name
-    REACT_APP_CLOUDINARY_UPLOAD_PRESET=tu_upload_preset
-    ```
+[//]: # ()
+[//]: # (1. Clona el repositorio:)
 
-4. Inicia el servidor de desarrollo:
-    ```bash
-    npm start
-    ```
+[//]: # (    ```bash)
 
-## Uso
+[//]: # (    git clone https://github.com/keni2002/bulls_and_cows.git)
 
-1. Abre tu navegador y ve a `http://localhost:3000` para ver la aplicación en acción.
-2. Regístrate o inicia sesión en tu cuenta.
-3. Explora las funcionalidades del juego: envía solicitudes, acepta solicitudes y juega.
-4. Administra tu perfil y actualiza tu foto de perfil utilizando el servicio Cloudinary.
+[//]: # (    cd bulls_and_cows/backend)
 
-## Contribuir
+[//]: # (    ```)
 
-¡Las contribuciones son bienvenidas! Para contribuir a este proyecto, sigue estos pasos:
+[//]: # ()
+[//]: # (2. Crea un entorno virtual e instala las dependencias:)
 
-1. Haz un fork del repositorio.
-2. Crea una rama para tu función o corrección de errores (`git checkout -b feature/nueva-funcion`).
-3. Realiza tus cambios y haz commits con mensajes descriptivos (`git commit -m 'Añadir nueva función'`).
-4. Empuja tus cambios a la rama (`git push origin feature/nueva-funcion`).
-5. Abre una Pull Request.
+[//]: # (    ```bash)
 
-## Licencia
+[//]: # (    python3 -m venv env)
 
-Este proyecto está bajo la licencia MIT. Puedes ver los detalles de la licencia [aquí](https://github.com/keni2002/bulls_and_cows/blob/main/LICENSE).
+[//]: # (    source env/bin/activate  # En Windows usa `env\Scripts\activate`)
 
-## Contacto
+[//]: # (    pip install -r requirements.txt)
 
-Para cualquier pregunta o información adicional, siéntete libre de contactarnos a través de [GitHub](https://github.com/keni2002/bulls_and_cows).
+[//]: # (    ```)
 
----
+[//]: # ()
+[//]: # (3. Configura la base de datos en el archivo `settings.py`.)
 
-¡Gracias por utilizar **Bulls and Cows**! ¡Diviértete jugando!
+[//]: # ()
+[//]: # (4. Ejecuta las migraciones:)
+
+[//]: # (    ```bash)
+
+[//]: # (    python manage.py migrate)
+
+[//]: # (    ```)
+
+[//]: # ()
+[//]: # (5. Inicia el servidor de desarrollo:)
+
+[//]: # (    ```bash)
+
+[//]: # (    python manage.py runserver)
+
+[//]: # (    ```)
+
+[//]: # ()
+[//]: # (### Frontend)
+
+[//]: # ()
+[//]: # (1. Ve al directorio del frontend:)
+
+[//]: # (    ```bash)
+
+[//]: # (    cd ../frontend)
+
+[//]: # (    ```)
+
+[//]: # ()
+[//]: # (2. Instala las dependencias:)
+
+[//]: # (    ```bash)
+
+[//]: # (    npm install)
+
+[//]: # (    ```)
+
+[//]: # ()
+[//]: # (3. Configura Cloudinary en el archivo `.env`:)
+
+[//]: # (    ```env)
+
+[//]: # (    REACT_APP_CLOUDINARY_CLOUD_NAME=tu_cloud_name)
+
+[//]: # (    REACT_APP_CLOUDINARY_UPLOAD_PRESET=tu_upload_preset)
+
+[//]: # (    ```)
+
+[//]: # ()
+[//]: # (4. Inicia el servidor de desarrollo:)
+
+[//]: # (    ```bash)
+
+[//]: # (    npm start)
+
+[//]: # (    ```)
+
+[//]: # ()
+[//]: # (## Uso)
+
+[//]: # ()
+[//]: # (1. Abre tu navegador y ve a `http://localhost:3000` para ver la aplicación en acción.)
+
+[//]: # (2. Regístrate o inicia sesión en tu cuenta.)
+
+[//]: # (3. Explora las funcionalidades del juego: envía solicitudes, acepta solicitudes y juega.)
+
+[//]: # (4. Administra tu perfil y actualiza tu foto de perfil utilizando el servicio Cloudinary.)
+
+[//]: # ()
+[//]: # (## Contribuir)
+
+[//]: # ()
+[//]: # (¡Las contribuciones son bienvenidas! Para contribuir a este proyecto, sigue estos pasos:)
+
+[//]: # ()
+[//]: # (1. Haz un fork del repositorio.)
+
+[//]: # (2. Crea una rama para tu función o corrección de errores &#40;`git checkout -b feature/nueva-funcion`&#41;.)
+
+[//]: # (3. Realiza tus cambios y haz commits con mensajes descriptivos &#40;`git commit -m 'Añadir nueva función'`&#41;.)
+
+[//]: # (4. Empuja tus cambios a la rama &#40;`git push origin feature/nueva-funcion`&#41;.)
+
+[//]: # (5. Abre una Pull Request.)
+
+[//]: # ()
+[//]: # (## Licencia)
+
+[//]: # ()
+[//]: # (Este proyecto está bajo la licencia MIT. Puedes ver los detalles de la licencia [aquí]&#40;https://github.com/keni2002/bulls_and_cows/blob/main/LICENSE&#41;.)
+
+[//]: # ()
+[//]: # (## Contacto)
+
+[//]: # ()
+[//]: # (Para cualquier pregunta o información adicional, siéntete libre de contactarnos a través de [GitHub]&#40;https://github.com/keni2002/bulls_and_cows&#41;.)
+
+[//]: # ()
+[//]: # (---)
+
+[//]: # ()
+[//]: # (¡Gracias por utilizar **Bulls and Cows**! ¡Diviértete jugando!)
 
 
 
