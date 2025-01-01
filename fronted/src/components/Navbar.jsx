@@ -16,7 +16,7 @@ function NavbarComponent({ handleShowToast }) {
     };
 
     // Añadir el evento de colapso a todos los enlaces y el botón de logout
-    const links = document.querySelectorAll('.nav-link, .dropdown-item');
+    const links = document.querySelectorAll('.nav-link, .dropdown-item, .navbar-brand');
     links.forEach(link => link.addEventListener('click', handleCollapse));
 
     return () => {
@@ -27,7 +27,7 @@ function NavbarComponent({ handleShowToast }) {
   const handleLogoutClick = () => {
     handleLogout();
     handleShowToast("Logout successful!");
-    navigate("/");
+    navigate("/")
   };
 
   return (
@@ -35,30 +35,35 @@ function NavbarComponent({ handleShowToast }) {
       {user && (
         <div className="container-fluid">
           <Link className="navbar-brand" to="/"><img src="/icon.svg" width="30px" alt="icon"/> B&C</Link>
-          <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
+          <button className="navbar-toggler" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#navbarNavAltMarkup"
                   aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
             {user.photo ? (
-              <img src={user.photo} className="rounded-circle" style={{ width: '30px', height: '30px' }} alt="Profile"/>
+                <img src={user.photo} className="rounded-circle" style={{width: '30px', height: '30px'}} alt="Profile"/>
             ) : (
-              <span className="rounded-circle bg-secondary d-inline-block text-center text-white"
-                    style={{ width: '30px', height: '30px', lineHeight: '30px' }}>
+                <span className="rounded-circle bg-success d-inline-block text-center text-white"
+                      style={{width: '30px', height: '30px', lineHeight: '30px'}}>
                 {user.name.charAt(0)}
               </span>
             )}{" "}
             <span className="ms-2">{user.name}</span>
+            <i className="bi bi-three-dots-vertical"></i>
           </button>
           <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
             <div className="navbar-nav me-auto">
-              <NavLink className="nav-link" to="/requests">Mis peticiones</NavLink>
-              <NavLink className="nav-link" to="/received-requests">Solicitudes</NavLink>
-              <NavLink className="nav-link" to="/users">Usuarios</NavLink>
-              <NavLink className="nav-link" to="/games">Partidas</NavLink>
+              {user && (
+                <>
+                  <NavLink className="nav-link" to="/requests">Mis peticiones</NavLink>
+                  <NavLink className="nav-link" to="/received-requests">Solicitudes</NavLink>
+                  <NavLink className="nav-link" to="/users">Usuarios</NavLink>
+                  <NavLink className="nav-link" to="/games">Partidas</NavLink>
+                </>
+              )}
             </div>
             <div className="navbar-nav d-lg-none"> {/* Esto se muestra solo en pantallas pequeñas */}
               <NavLink className="nav-link" to="/profile">Mi Perfil</NavLink>
               <NavLink className="nav-link" to="/edit-profile">Editar Perfil</NavLink>
-              <NavLink className="nav-link" to="/">Cerrar Sesión</NavLink>
-
+              <button className="nav-link btn btn-link" onClick={handleLogoutClick} style={{ color: '#0d6efd' }}>Cerrar Sesión</button>
             </div>
             <div className="navbar-nav d-none d-lg-block"> {/* Esto se muestra solo en pantallas grandes */}
               <div className="nav-item dropdown">
@@ -80,7 +85,7 @@ function NavbarComponent({ handleShowToast }) {
                   <li><NavLink className="dropdown-item" to="/edit-profile">Editar Perfil</NavLink></li>
                   <li><hr className="dropdown-divider"/></li>
                   <li>
-                    <NavLink className="nav-link" to="/">Cerrar Sesión</NavLink>
+                    <button className="dropdown-item" onClick={handleLogoutClick}>Cerrar Sesión</button>
                   </li>
                 </ul>
               </div>

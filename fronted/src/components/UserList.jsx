@@ -16,7 +16,7 @@ function UserList({ handleShowToast }) {
         const filteredUsers = response.data.filter(u => u.id !== currentUser.id);
         setUsers(filteredUsers);
       } catch (error) {
-        handleShowToast("Failed to fetch users.");
+        // handleShowToast("Failed to fetch users.");
       }
     };
 
