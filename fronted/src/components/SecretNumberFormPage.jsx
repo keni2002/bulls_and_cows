@@ -40,6 +40,7 @@ function SecretNumberFormPage({ handleShowToast }) {
           player1_secret: secretNumber,
           requester: currentUser.id
         });
+        localStorage.setItem("secret", secretNumber)
         handleShowToast("Número secreto guardado!");
         navigate('/users');
       } catch (error) {

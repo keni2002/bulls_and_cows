@@ -38,10 +38,10 @@ function Form({ route, method, handleShowToast }) {
                 localStorage.setItem(REFRESH_TOKEN, res.data.refresh);
                 const userResponse = await api.get("/api/auth/user/me/");
                 setUser(userResponse.data);
-                handleShowToast("Login successful!");
+                // handleShowToast("Login successful!");
                 navigate("/games");
             } else {
-                handleShowToast("Registro exitoso!");
+                // handleShowToast("Error al iniciar sesión");
                 navigate("/login");
             }
         } catch (error) {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
 import { UserContext } from '../context/UserContext';
-import {useParams, useNavigate, Link} from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 
 function Game({ handleShowToast }) {
   const { gameId } = useParams();
@@ -13,7 +13,7 @@ function Game({ handleShowToast }) {
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
-  const [secret,setSecret] = useState('')
+  const [secret, setSecret] = useState('');
 
   useEffect(() => {
     const fetchGame = async () => {
@@ -32,7 +32,7 @@ function Game({ handleShowToast }) {
       try {
         const response = await api.get(`/api/game/games/${gameId}/guesses/`);
         setGuesses(response.data);
-        setSecret(localStorage.getItem("secret"))
+        setSecret(localStorage.getItem("secret"));
       } catch (error) {
         setErrors({ fetch: error.response.data.detail });
       }
@@ -49,10 +49,17 @@ function Game({ handleShowToast }) {
         guess,
       });
       setGuess('');
+      setErrors({}); // Resetear errores al enviar un intento exitoso
       setRefresh(prev => !prev); // Forzar actualización cambiando el valor de refresh
     } catch (error) {
       setErrors({ guess: error.response.data.detail });
-      setRefresh(prev => !prev); // Forzar actualización cambiando el valor de refresh
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setGuess(e.target.value);
+    if (errors.guess) {
+      setErrors({ ...errors, guess: '' }); // Limpiar error de intento al cambiar el input
     }
   };
 
@@ -65,63 +72,67 @@ function Game({ handleShowToast }) {
   return (
     <div className="d-flex justify-content-center">
       <div className="w-100" style={{ maxWidth: '600px' }}>
-        <h2>Game</h2>
-        <div className={"d-inline-flex"}>
-        <div>
-          <p><strong>Oponente:</strong> {game.opponent_name}</p>
-          <p><strong>Estado:</strong> {game.active ? 'Activo' : 'Finalizado'}</p>
-          {game.winner && <p><strong>GANADOR: {game.winner_name}</strong></p>}
-        </div>
-        {game.winner &&
-        (user.id !== game.winner ?
-            (<div>
-              <i className="bi bi-emoji-frown-fill text-danger" ></i>
-              <h2 className={"text-danger"}>{`Lo siento ${user?.name}, acabas de perder`}</h2>
-              <Link to="/games" className="btn btn-danger mb-3">Ver juegos</Link>
-            </div>):
-            (<div>
-              <i className="bi bi-emoji-laughing text-success" ></i>
-              <h2 className={"text-success"}>{`Hola ${user?.name}, Acabas de ganar!!`}</h2>
-              <Link to="/games" className="btn btn-success mb-3">Ver juegos</Link>
-            </div>))
-        }
+        <h2>Partida Número {game.id}</h2>
+        <div className="d-inline-flex">
+          <div>
+            <p><strong>Oponente:</strong> {game.opponent_name}</p>
+            <p><strong>Estado:</strong> {game.active ? 'Activo' : 'Finalizado'}</p>
+            {game.winner && <p><strong>GANADOR: {game.winner_name}</strong></p>}
+          </div>
+          {game.winner &&
+            (user.id !== game.winner ?
+              (<div>
+                <i className="bi bi-emoji-frown-fill text-danger"></i>
+                <h2 className="text-danger">{`Lo siento ${user?.name}, perdiste  en este juego`}</h2>
+                <Link to="/games" className="btn btn-danger mb-3">Ver juegos</Link>
+                <p>Número del oponente: {game.opponent_secret}</p>
+                <p>Mi Número: {game.my_secret}</p>
+              </div>) :
+                (<div>
+                  <i className="bi bi-emoji-laughing text-success"></i>
+                  <h2 className="text-success">{`Hola ${user?.name}, Ganaste en este juego!!`}</h2>
+                <Link to="/games" className="btn btn-success mb-3">Ver juegos</Link>
+                <p>Númmero del oponente: {game.opponent_secret}</p>
+                <p>Mi Número: {game.my_secret}</p>
+              </div>))
+
+          }
         </div>
 
         {!game.winner && <form onSubmit={handleGuess} className="w-auto w-100">
           <div className="mb-3 w-100">
             <label htmlFor="guess" className="form-label w-100">Ingrese un intento</label>
             <input
-                type="text"
-                className="form-control"
-                id="guess"
-                value={guess}
-                onChange={(e) => setGuess(e.target.value)}
-                required
+              type="text"
+              className="form-control"
+              id="guess"
+              value={guess}
+              onChange={handleInputChange} // Utilizamos la nueva función para manejar cambios
+              required
             />
             {errors.guess && <p className="text-danger">{errors.guess}</p>}
           </div>
           <button type="submit" className="btn btn-primary">Subir intento</button>
         </form>}
 
-         <div className="accordion" id="accordionExample">
-
+        <div className="accordion" id="accordionExample">
           <div className="accordion-item">
             <h2 className="accordion-header" id="headingOne">
               <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
-                      aria-expanded="true" aria-controls="collapseOne">
+                aria-expanded="true" aria-controls="collapseOne">
                 Mis intentos
               </button>
             </h2>
-            <div id="collapseOne" className={`accordion-collapse collapse ${game.winner ? "" : "show" }`} aria-labelledby="headingOne"
-                 data-bs-parent="#accordionExample">
+            <div id="collapseOne" className={`accordion-collapse collapse ${game.winner ? "" : "show"}`} aria-labelledby="headingOne"
+              data-bs-parent="#accordionExample">
               <div className="accordion-body">
                 <ul className="list-group">
                   {userGuesses.map(g => (
-                      <li className="list-group-item" key={g.id}>
-                        <p><strong>Intento:</strong> {g.guess}</p>
-                        <p><strong>Toros:</strong> {g.bulls}</p>
-                        <p><strong>Vacas:</strong> {g.cows}</p>
-                      </li>
+                    <li className="list-group-item" key={g.id}>
+                      <p><strong>Intento:</strong> {g.guess}</p>
+                      <p><strong>Toros:</strong> {g.bulls}</p>
+                      <p><strong>Vacas:</strong> {g.cows}</p>
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -133,7 +144,7 @@ function Game({ handleShowToast }) {
                 Intentos del oponente
               </button>
             </h2>
-            <div id="collapseTwo" className={`accordion-collapse collapse ${game.winner ? "show" : "" }`} aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+            <div id="collapseTwo" className={`accordion-collapse collapse ${game.winner ? "show" : ""}`} aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
               <div className="accordion-body">
                 <p><strong>mi secreto:</strong> {secret}</p> {/* Mostrar el número secreto */}
                 <ul className="list-group">

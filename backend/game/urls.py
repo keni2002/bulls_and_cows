@@ -10,4 +10,6 @@ urlpatterns = [
     path('game-requests/', views.GameRequestListCreateView.as_view(), name='game-request-list-create'),
     path('game-requests/<int:pk>/', views.GameRequestRetrieveUpdateDestroy.as_view(), name='game-request-detail'),
     path('users/', views.UserListView.as_view(), name='user-list'),
+    path('users/me/', views.UserDetailView.as_view(), name='user-detail'), # Ruta para editar el perfil del usuario autenticado
+
 ]

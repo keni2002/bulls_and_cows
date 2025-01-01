@@ -17,8 +17,9 @@ import UserList from "./components/UserList";
 import Game from "./components/Game";
 import GamesList from "./components/GamesList";
 import AcceptRequestForm from "./components/AcceptRequestForm";
-import SecretNumberFormPage from "./components/SecretNumberFormPage"; // Importamos el nuevo componente
-
+import SecretNumberFormPage from "./components/SecretNumberFormPage";
+import EditProfile from "./components/EditProfile";
+import Profile from "./components/Profile.jsx"
 function Logout({ handleShowToast }) {
   const { handleLogout } = useContext(UserContext);
   const navigate = useNavigate();
@@ -95,6 +96,16 @@ function App() {
           <Route path="/secret-number" element={
             <ProtectedRoute>
               <SecretNumberFormPage handleShowToast={handleShowToast} />
+            </ProtectedRoute>
+          }/>
+          <Route path="/edit-profile" element={
+            <ProtectedRoute>
+              <EditProfile handleShowToast={handleShowToast} />
+            </ProtectedRoute>
+          }/>
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <Profile handleShowToast={handleShowToast} />
             </ProtectedRoute>
           }/>
           <Route path="*" element={<NotFound />} />

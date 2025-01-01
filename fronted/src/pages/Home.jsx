@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Link } from 'react-router-dom';
+import {UserContext} from "../context/UserContext.jsx";
 
 function Home() {
+    const { user } = useContext(UserContext);
   return (
       <div className="container text-center mt-5">
-          <h1 className="display-4">Juego de Toros y Vacas</h1>
+          <h1 className="display-4">B&C (toros y vacas)</h1>
           <img
               src="/logo.png"
               alt="Juego de Toros y Vacas"
@@ -13,9 +15,9 @@ function Home() {
           />
           <p className="lead">¡Pon a prueba tu ingenio en este clásico juego de deducción!</p>
           <div className="d-grid gap-2 col-lg-4 col-md-10 mx-auto">
-              <Link to="/login" className="btn btn-primary mb-3">Iniciar Sesión</Link>
-              <Link to="/register" className="btn btn-success mb-3">Registrarse</Link>
-              <a href="https://github.com/your-repo" className="btn btn-secondary">
+              {!user &&<><Link to="/login" className="btn btn-primary mb-3">Iniciar Sesión</Link>
+                  <Link to="/register" className="btn btn-success mb-3">Registrarse</Link></>}
+              <a href="https://github.com/keni2002/bulls_and_cows" className="btn btn-secondary">
                   <i className="bi bi-github"></i> Contribuir al proyecto
               </a>
           </div>
@@ -35,7 +37,7 @@ function Home() {
                   <li className="list-group-item">Paso 1: Regístrate o inicia sesión en tu cuenta.</li>
                   <li className="list-group-item">Paso 2: Inicia un nuevo juego o acepta una solicitud de juego.</li>
                   <li className="list-group-item">Paso 3: Haz tus conjeturas e intenta deducir el número secreto del
-                      oponente.
+                      oponente en partidas.
                   </li>
               </ul>
           </div>

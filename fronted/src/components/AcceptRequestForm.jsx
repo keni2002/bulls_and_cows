@@ -1,50 +1,88 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import api from '../api';
+import { useNavigate, useParams } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
-import { useParams, useNavigate } from 'react-router-dom';
 
 function AcceptRequestForm({ handleShowToast }) {
-  const { requestId } = useParams();
+  const [secretNumber, setSecretNumber] = useState('');
+  const [error, setError] = useState('');
+  const [request, setRequest] = useState(null);
   const { user } = useContext(UserContext);
+  const { requestId } = useParams();
   const navigate = useNavigate();
-  const [player2Secret, setPlayer2Secret] = useState('');
-  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        const response = await api.get(`api/game/game-requests/${requestId}/`);
+        setRequest(response.data);
+      } catch (error) {
+        handleShowToast('Error al cargar la solicitud.');
+      }
+    };
+
+    fetchRequest();
+  }, [requestId, handleShowToast]);
+
+  const validateSecret = (secret) => {
+    const secretRegex = /^(?!.*(.).*\1)\d{4}$/;
+    return secretRegex.test(secret) && !secret.startsWith('0');
+  };
+
+  const handleSecretChange = (e) => {
+    const secret = e.target.value;
+    if (validateSecret(secret)) {
+      setError('');
+    } else {
+      setError('El número secreto debe ser de 4 dígitos únicos y no debe comenzar con cero.');
+    }
+    setSecretNumber(secret);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await api.patch(`/api/game/game-requests/${requestId}/`, {
-        accepted: true,
-        player2_secret: player2Secret,
-      });
-      const { game } = response.data;
-      localStorage.setItem("secret", player2Secret)
-      handleShowToast("Game Started.");
-      navigate(`/game/${game.id}`);
-    } catch (error) {
-      setErrors({ submit: error.response.data.detail });
+    if (validateSecret(secretNumber)) {
+      try {
+        await api.patch(`api/game/game-requests/${requestId}/`, {
+          accepted: true,
+          player2_secret: secretNumber
+        });
+        localStorage.setItem("secret", secretNumber)
+        handleShowToast('Solicitud aceptada.');
+        navigate('/games');
+      } catch (error) {
+        handleShowToast('Error al aceptar la solicitud.');
+      }
+    } else {
+      setError('Asegúrese de que el número secreto sea válido.');
     }
   };
 
+  if (!request) {
+    return <div className="d-flex justify-content-center">Cargando solicitud...</div>;
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="d-flex justify-content-center">
+    <div className="d-flex justify-content-center">
       <div className="w-100" style={{ maxWidth: '600px' }}>
-        <h2>Accept Game Request</h2>
-        <div className="mb-3">
-          <label htmlFor="player2Secret" className="form-label">Your Secret Number</label>
-          <input
-            type="text"
-            className="form-control"
-            id="player2Secret"
-            value={player2Secret}
-            onChange={(e) => setPlayer2Secret(e.target.value)}
-            required
-          />
-          {errors.submit && <p className="text-danger">{errors.submit}</p>}
-        </div>
-        <button type="submit" className="btn btn-primary">Accept</button>
+        <h2>Aceptar Solicitud de Juego</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label htmlFor="secretNumber" className="form-label">Número Secreto</label>
+            <input
+              type="text"
+              className="form-control"
+              id="secretNumber"
+              value={secretNumber}
+              onChange={handleSecretChange}
+              required
+            />
+            {error && <div className="text-danger">{error}</div>}
+          </div>
+          <button type="submit" className="btn btn-primary">Aceptar Solicitud</button>
+        </form>
       </div>
-    </form>
+    </div>
   );
 }
 

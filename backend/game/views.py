@@ -10,13 +10,26 @@ from .serializers import ProfileSerializer, GameSerializer, GuessSerializer, Gam
 from .utils import calculate_bulls_and_cows
 from django.contrib.auth.models import User
 from .serializers import UserProfileSerializer
-
+from rest_framework.exceptions import ValidationError
 class UserListView(generics.ListAPIView):
+    queryset = User.objects.filter(is_staff=False).order_by('-profile__games_won')
+    serializer_class = UserProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class UserDetailView(generics.RetrieveUpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
-    def get_queryset(self):
-        return User.objects.all().order_by('-profile__games_won')
+
+    def get_object(self):
+        return self.request.user  # Solo permitir la edición del perfil del usuario autenticado
+
+    def update(self, request, *args, **kwargs):
+        try:
+            return super().update(request, *args, **kwargs)
+        except ValidationError as e:
+            return Response({"email": ["Este correo electrónico ya está en uso."]}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ProfileList(generics.ListAPIView):
@@ -36,7 +49,7 @@ class GameListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         queryset = []
-        for game in Game.objects.all():
+        for game in Game.objects.all().order_by('-created_at'):
             if game.gamerequest.accepted:
                 queryset.append(game)
         return queryset
@@ -96,16 +109,16 @@ class GuessListCreate(generics.ListCreateAPIView):
 
         if game_request:
             if not game_request.initiated:
-                return Response({'detail': 'Waiting for the oponent. Be patient for initiated.'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'detail': 'Espera a que el Solicitante entre.'}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 pass
-        if game.winner:
-            return Response({'detail': 'The game has finished'}, status=status.HTTP_403_FORBIDDEN)
+        # if game.winner:
+        #     return Response({'detail': 'El juego ya finalizó'}, status=status.HTTP_403_FORBIDDEN)
         if player != game.player1 and player != game.player2:
-            return Response({'detail': 'You are not a participant in this game.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({'detail': 'No perteneces a este juego'}, status=status.HTTP_403_FORBIDDEN)
 
         if not game.player1_secret_encrypted or not game.player2_secret_encrypted:
-            return Response({'detail': 'Both players must define their secret numbers before the game can start.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Para iniciar ambos deben elegir su número secreto'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Determine the secret number
         secret = game.player1_secret if player == game.player2 else game.player2_secret
@@ -166,7 +179,6 @@ class GameRequestListCreateView(generics.ListCreateAPIView):
 
 
 
-
 class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     queryset = GameRequest.objects.all()
     serializer_class = GameRequestSerializer
@@ -174,10 +186,22 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
+
         # Permitir que tanto el solicitante como el destinatario puedan eliminar la solicitud
         if instance.requester != request.user and instance.requestee != request.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
-        return self.destroy(request, *args, **kwargs)
+
+        # Verificar si la solicitud no ha sido iniciada
+        if instance.initiated:
+            raise PermissionDenied("No se puede eliminar una solicitud iniciada.")
+
+        # Obtener el juego asociado y eliminarlo
+        game = Game.objects.filter(gamerequest=instance).first()
+        if game:
+            game.delete()
+
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -199,11 +223,19 @@ class GameRequestRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
     #sobrescribo para evitar que el contrario valide el juego con initated = true
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        # Verifica si el usuario actual es el requester
-        if request.user != instance.requester:
-            raise PermissionDenied("Wait for the requester user")
         partial = kwargs.pop('partial', False)
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        data = request.data.copy()
+        # Verifica si el usuario actual es el requester o el requestee
+        if request.user == instance.requester:
+            # Requester puede actualizar cualquier campo
+            serializer = self.get_serializer(instance, data=data, partial=partial)
+        elif request.user == instance.requestee:
+            # Requestee solo puede actualizar accepted y player2_secret
+            allowed_fields = ['accepted', 'player2_secret']
+            data = {field: value for field, value in data.items() if field in allowed_fields}
+            serializer = self.get_serializer(instance, data=data, partial=partial)
+        else:
+            raise PermissionDenied("No tienes permiso para realizar esta acción.")
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
