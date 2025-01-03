@@ -1,53 +1,36 @@
-version: '3'
-
 services:
-  backend:
-    build:
-      context: ./backend
-    container_name: backend
-    restart: always
+  db:
+    image: postgres:alpine
     env_file:
       - ./backend/core/.env
     volumes:
+      - postgres_data:/var/lib/postgresql/data
+  web:
+    build: ./backend
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+    volumes:
       - ./backend:/app
-    depends_on:
-      - db
     ports:
       - "8000:8000"
-    environment:
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${POSTGRES_PORT}/${POSTGRES_DB}
-
+    depends_on:
+      - db
+    env_file:
+      - ./backend/core/.env
   frontend:
-    build:
-      context: ./frontend
-    container_name: frontend
-    restart: always
+    build: ./frontend
     volumes:
       - ./frontend:/app
     ports:
       - "3000:3000"
-
-  db:
-    image: postgres:alpine
-    container_name: db
-    restart: always
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    env_file:
-      - ./backend/.env
-
   nginx:
-    build: ./nginx
-    container_name: nginx
-    restart: always
+    build: ./nginx  # Usa el Dockerfile en la carpeta nginx
     ports:
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/certs:/etc/nginx/ssl
+      - ./nginx/certs:/etc/nginx/certs  # Monta la carpeta de certificados
+      - ./nginx/conf.d:/etc/nginx/conf.d  # Monta la configuración de Nginx
     depends_on:
-      - backend
+      - web
       - frontend
-
 volumes:
   postgres_data:
