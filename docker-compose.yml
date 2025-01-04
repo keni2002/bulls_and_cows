@@ -7,30 +7,39 @@ services:
       - postgres_data:/var/lib/postgresql/data
   web:
     build: ./backend
-    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./backend:/app
+      - static_volume:/app/static
     ports:
       - "8000:8000"
     depends_on:
       - db
     env_file:
       - ./backend/core/.env
-  frontend:
-    build: ./frontend
-    volumes:
-      - ./frontend:/app
-    ports:
-      - "3000:3000"
+
   nginx:
     build: ./nginx  # Usa el Dockerfile en la carpeta nginx
     ports:
-      - "443:443"
+      - "8001:80"
     volumes:
-      - ./nginx/certs:/etc/nginx/certs  # Monta la carpeta de certificados
+      # - ./nginx/certs:/etc/nginx/certs  # Monta la carpeta de certificados
       - ./nginx/conf.d:/etc/nginx/conf.d  # Monta la configuración de Nginx
+      - static_volume:/app/static
     depends_on:
       - web
-      - frontend
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "443:443"
+    volumes:
+      - ./frontend/certs:/etc/nginx/certs  # Monta la carpeta de certificados
+      - ./frontend/conf.d:/etc/nginx/conf.d  # Monta la configuración de Nginx
+    depends_on:
+      - nginx
+
+
 volumes:
   postgres_data:
+  static_volume:
